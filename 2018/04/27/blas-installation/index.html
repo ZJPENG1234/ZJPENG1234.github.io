@@ -9,6 +9,11 @@
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4"
     crossorigin="anonymous">
+
+  <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+
   <style>
     .m-margin {
       margin-top: 2%;
@@ -44,7 +49,8 @@
 
 
 <p><code>BLAS</code>(Basic Linear Algebra Subprograms) has many implementations, mainly <code>ATLAS</code>, <code>GotoBLAS2</code>, <code>OpenBLAS</code>, <code>MKL</code>, <code>Eigen3</code>. This note is about how I <strong>build &amp; install &amp; link</strong> them.</p>
-<h3 id="ATLAS"><a href="#ATLAS" class="headerlink" title="ATLAS"></a>ATLAS</h3><hr>
+<h3>ATLAS</h3>
+<hr>
 <p><strong>Info</strong></p>
 <ul>
 <li>Page: <a href="http://math-atlas.sourceforge.net/" target="_blank" rel="noopener">http://math-atlas.sourceforge.net/</a></li>
@@ -54,39 +60,70 @@
 </ul>
 <p><strong>Build Before</strong></p>
 <p>Make sure CPU THROTTLING is turned off. See INSTALL.txt</p>
-<p>The following code is how ATLAS checks whether CPU THROTTLING is turned off<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// ./CONFIG/src/backend/archinfo_linux.c Line 530-572</span><br><span class="line">/*</span><br><span class="line"> * If cpufreq directory doesn&apos;t exist, guess no throttling.  If</span><br><span class="line"> * cpufreq exists, and cur Mhz &lt; max, throttling is enabled,</span><br><span class="line"> * throttling also enabled if governer is not &quot;performance&quot;, and min freq</span><br><span class="line"> * is less than max</span><br><span class="line"> */</span><br></pre></td></tr></table></figure></p>
+<p>The following code is how ATLAS checks whether CPU THROTTLING is turned off</p>
+<pre><code>// ./CONFIG/src/backend/archinfo_linux.c Line 530-572
+/*
+ * If cpufreq directory doesn't exist, guess no throttling.  If
+ * cpufreq exists, and cur Mhz &lt; max, throttling is enabled,
+ * throttling also enabled if governer is not &quot;performance&quot;, and min freq
+ * is less than max
+ */
+</code></pre>
 <p>So in BIOS, I set fixed 3.2 Mhz for all CPUs.</p>
 <p><strong>Build</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">$ mkdir my_build_dir ; <span class="built_in">cd</span> my_build_dir</span><br><span class="line">$ /path/to/ATLAS/configure [flags]</span><br><span class="line">$ make              ! tune and compile library</span><br><span class="line">$ make check        ! perform sanity tests</span><br><span class="line">$ make ptcheck      ! checks of threaded code <span class="keyword">for</span> multiprocessor systems</span><br><span class="line">$ make time         ! provide performance summary as % of clock rate</span><br></pre></td></tr></table></figure>
-<p><strong>Install</strong><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make install --prefix=/path/to/install</span><br></pre></td></tr></table></figure></p>
-<p>or<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make install DESTDIR=/path/to/install</span><br></pre></td></tr></table></figure></p>
+<pre><code class="language-bash">$ mkdir my_build_dir ; cd my_build_dir
+$ /path/to/ATLAS/configure [flags]
+$ make              ! tune and compile library
+$ make check        ! perform sanity tests
+$ make ptcheck      ! checks of threaded code for multiprocessor systems
+$ make time         ! provide performance summary as % of clock rate
+</code></pre>
+<p><strong>Install</strong></p>
+<pre><code class="language-bash">$ make install --prefix=/path/to/install
+</code></pre>
+<p>or</p>
+<pre><code class="language-bash">$ make install DESTDIR=/path/to/install
+</code></pre>
 <p><strong>How to use?</strong></p>
-<p>Assume ATLAS is installed in &lt;ATLAS_ROOT&gt;<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc test_blas.c -I&lt;ATLAS_ROOT&gt;/include -L&lt;ATLAS_ROOT&gt;/lib -lcblas -latlas -o test_blas.out</span><br></pre></td></tr></table></figure></p>
-<h3 id="GotoBLAS2"><a href="#GotoBLAS2" class="headerlink" title="GotoBLAS2"></a>GotoBLAS2</h3><hr>
+<p>Assume ATLAS is installed in &lt;ATLAS_ROOT&gt;</p>
+<pre><code class="language-bash">$ gcc test_blas.c -I&lt;ATLAS_ROOT&gt;/include -L&lt;ATLAS_ROOT&gt;/lib -lcblas -latlas -o test_blas.out
+</code></pre>
+<h3>GotoBLAS2</h3>
+<hr>
 <p><strong>Info</strong></p>
 <ul>
 <li>Page: <a href="https://www.tacc.utexas.edu/research-development/tacc-software/gotoblas2" target="_blank" rel="noopener">https://www.tacc.utexas.edu/research-development/tacc-software/gotoblas2</a></li>
 <li>Version: 1.13</li>
 <li>Source Code: <a href="https://www.tacc.utexas.edu/documents/1084364/1087496/GotoBLAS2-1.13.tar.gz" target="_blank" rel="noopener">https://www.tacc.utexas.edu/documents/1084364/1087496/GotoBLAS2-1.13.tar.gz</a></li>
-<li>Installation Doc: </li>
+<li>Installation Doc:</li>
 </ul>
 <p><strong>Bug Fix:</strong></p>
 <ol>
-<li><p><code>./driver/others/dynamic.c Line 183-187</code> should be the following:</p>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> ARCH_X86</span></span><br><span class="line">	<span class="keyword">if</span> (gotoblas == <span class="literal">NULL</span>) gotoblas = &amp;gotoblas_KATMAI;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">	<span class="keyword">if</span> (gotoblas == <span class="literal">NULL</span>) gotoblas = &amp;gotoblas_PRESCOTT;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>./f_check Line 266</code> should be the following:</p>
-<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">($flags =~ <span class="regexp">/^\-l\w+/</span>)</span><br></pre></td></tr></table></figure>
-</li>
+<li><code>./driver/others/dynamic.c Line 183-187</code> should be the following:</li>
 </ol>
+<pre><code class="language-c">#ifdef ARCH_X86
+	if (gotoblas == NULL) gotoblas = &amp;gotoblas_KATMAI;
+#else
+	if (gotoblas == NULL) gotoblas = &amp;gotoblas_PRESCOTT;
+#endif
+</code></pre>
+<ol start="2">
+<li><code>./f_check Line 266</code> should be the following:</li>
+</ol>
+<pre><code class="language-perl">($flags =~ /^\-l\w+/) 
+</code></pre>
 <p><strong>Build</strong></p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ make</span><br></pre></td></tr></table></figure>
+<pre><code class="language-bash">$ make
+</code></pre>
 <p>If <code>make</code> fails, try <code>make DYNAMIC_ARCH=1</code></p>
 <p><strong>Install</strong></p>
 <p>Just copy all files into destination path.</p>
 <p><strong>How to use?</strong></p>
-<p>Assume GotoBLAS2 is installed in &lt;GotoBLAS2_ROOT&gt;<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc ./test_blas.c -o ./test_blas.out -DEXPRECISION -m128bit-long-double -Wall -m64 -DF_INTERFACE_GFORT -fPIC  -DDYNAMIC_ARCH -DMAX_CPU_NUMBER=4  -w  -I&lt;GotoBLAS2_ROOT&gt; -L&lt;GotoBLAS2_ROOT&gt; -lgoto2 -lm -lgfortran -lquadmath -lc</span><br></pre></td></tr></table></figure></p>
-<h3 id="OpenBLAS"><a href="#OpenBLAS" class="headerlink" title="OpenBLAS"></a>OpenBLAS</h3><hr>
+<p>Assume GotoBLAS2 is installed in &lt;GotoBLAS2_ROOT&gt;</p>
+<pre><code class="language-bash">$ gcc ./test_blas.c -o ./test_blas.out -DEXPRECISION -m128bit-long-double -Wall -m64 -DF_INTERFACE_GFORT -fPIC  -DDYNAMIC_ARCH -DMAX_CPU_NUMBER=4  -w  -I&lt;GotoBLAS2_ROOT&gt; -L&lt;GotoBLAS2_ROOT&gt; -lgoto2 -lm -lgfortran -lquadmath -lc
+</code></pre>
+<h3>OpenBLAS</h3>
+<hr>
 <blockquote>
 <p>OpenBLAS is an optimized BLAS library based on GotoBLAS2 1.13 BSD version.</p>
 </blockquote>
@@ -96,9 +133,17 @@
 <li>Github: <a href="https://github.com/xianyi/OpenBLAS" target="_blank" rel="noopener">https://github.com/xianyi/OpenBLAS</a></li>
 </ul>
 <p><strong>Build &amp; Install</strong></p>
-<p><a href="https://github.com/xianyi/OpenBLAS/wiki/Installation-Guide" target="_blank" rel="noopener">https://github.com/xianyi/OpenBLAS/wiki/Installation-Guide</a><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ make</span><br><span class="line">$ make install --prefix=/path/to/install</span><br></pre></td></tr></table></figure></p>
-<p><strong>How to use?</strong><br>Assume OpenBLAS is installed in &lt;OPEN_ROOT&gt;<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gcc ./test_blas.c -o ./test_blas.out -I&lt;OPEN_ROOT&gt; -L&lt;OPEN_ROOT&gt; -lopenblas</span><br></pre></td></tr></table></figure></p>
-<h3 id="MKL"><a href="#MKL" class="headerlink" title="MKL"></a>MKL</h3><blockquote>
+<p><a href="https://github.com/xianyi/OpenBLAS/wiki/Installation-Guide" target="_blank" rel="noopener">https://github.com/xianyi/OpenBLAS/wiki/Installation-Guide</a></p>
+<pre><code class="language-bash">$ make
+$ make install --prefix=/path/to/install
+</code></pre>
+<p><strong>How to use?</strong>
+Assume OpenBLAS is installed in &lt;OPEN_ROOT&gt;</p>
+<pre><code class="language-bash">gcc ./test_blas.c -o ./test_blas.out -I&lt;OPEN_ROOT&gt; -L&lt;OPEN_ROOT&gt; -lopenblas
+</code></pre>
+<h3>MKL</h3>
+<hr>
+<blockquote>
 <p>Intel® Math Kernel Library (Intel® MKL) optimizes code with minimal effort for future generations of Intel® processors. It is compatible with your choice of compilers, languages, operating systems, and linking and threading models.</p>
 </blockquote>
 <p>MKL has overall documents, so everything will be easy.</p>
@@ -108,11 +153,12 @@
 <li>Doc: <a href="https://software.intel.com/en-us/mkl/documentation" target="_blank" rel="noopener">https://software.intel.com/en-us/mkl/documentation</a></li>
 </ul>
 <p><strong>Build &amp; Install</strong></p>
-<p>After download, it’s compiled, so don’t need build and install step.</p>
+<p>After download, it's compiled, so don't need build and install step.</p>
 <p><strong>How to use?</strong></p>
 <p>You can set environment variables, see <a href="https://software.intel.com/en-us/mkl-linux-developer-guide-linking-on-intel-64-architecture-systems" target="_blank" rel="noopener">here</a>: <em>Getting Started</em>.</p>
 <p>Also you can link directly, like <a href="https://software.intel.com/en-us/mkl-linux-developer-guide-linking-on-intel-64-architecture-systems" target="_blank" rel="noopener">this</a>: <em>Linking Your Application with the Intel® Math Kernel Library</em>.</p>
-<h3 id="Eigen3"><a href="#Eigen3" class="headerlink" title="Eigen3"></a>Eigen3</h3><hr>
+<h3>Eigen3</h3>
+<hr>
 <blockquote>
 <p>Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms.</p>
 </blockquote>
@@ -121,30 +167,98 @@
 <li>Page: <a href="http://eigen.tuxfamily.org" target="_blank" rel="noopener">http://eigen.tuxfamily.org</a></li>
 <li>Github: <a href="https://github.com/eigenteam/eigen-git-mirror" target="_blank" rel="noopener">https://github.com/eigenteam/eigen-git-mirror</a></li>
 </ul>
-<p><strong> Build &amp; Install</strong><br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$mkdir</span> build &amp;&amp; <span class="built_in">cd</span> build</span><br><span class="line"><span class="variable">$cmake</span> .. --DCMAKE_INSTALL_PREFIX=/path/to/install</span><br><span class="line"><span class="variable">$make</span> install</span><br></pre></td></tr></table></figure></p>
-<p><strong>How to use?</strong><br>Assume Eigen3 is installed in &lt;EIGEN3_ROOT&gt;<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gcc -I&lt;EIGEN3_ROOT&gt; ./test_eigen.cpp -o ./test_eigen.out</span><br></pre></td></tr></table></figure></p>
-<h3 id="Appendix"><a href="#Appendix" class="headerlink" title="Appendix"></a>Appendix</h3><hr>
-<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// test_blas.c</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> USING_MKL</span></span><br><span class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"cblas.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line">    <span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mkl_cblas.h"</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MAX (int)(1e5)</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">double</span> T;   <span class="comment">//S, D, C, Z</span></span><br><span class="line"></span><br><span class="line"><span class="function">T *<span class="title">gen_matrix</span><span class="params">(<span class="keyword">int</span> m,  <span class="keyword">int</span> n, <span class="keyword">float</span> sparsity)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    T *mtx = (T *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(T) * m * n);</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; m*n; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(rand() &lt; sparsity * RAND_MAX)</span><br><span class="line">            mtx[i] = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            mtx[i] = rand() % MAX;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> mtx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">double</span> alhpa = <span class="number">2.0</span>, beta = <span class="number">2.0</span>;</span><br><span class="line">    <span class="keyword">int</span> m = <span class="number">500</span>, n = <span class="number">500</span>, k = <span class="number">500</span>;</span><br><span class="line">    T *A = gen_matrix(m, k, <span class="number">0</span>);</span><br><span class="line">    T *B = gen_matrix(k, n, <span class="number">0</span>);</span><br><span class="line">    T *C = gen_matrix(m, n, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    print_matrix(A, m, k);</span><br><span class="line">    print_matrix(B, k, n);</span><br><span class="line">    print_matrix(C, m, n);</span><br><span class="line">    </span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">timeval</span> <span class="title">start</span>, <span class="title">end</span>;</span></span><br><span class="line">    gettimeofday(&amp;start, <span class="number">0</span>);</span><br><span class="line">    </span><br><span class="line">    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, </span><br><span class="line">        m, n, k, alhpa, A, k, B, n, beta, C, n);</span><br><span class="line">        </span><br><span class="line">    gettimeofday(&amp;end, <span class="number">0</span>);</span><br><span class="line">      </span><br><span class="line">    <span class="built_in">printf</span>(</span><br><span class="line">            <span class="string">"\nRoutine: C &lt;- alpha*op(A)op(b) + beta*C\n"</span></span><br><span class="line">            <span class="string">"  M = %d, K = %d, N = %d\n"</span></span><br><span class="line">            <span class="string">"  Wall time is %ld us\n"</span>, </span><br><span class="line">            m, k, n, (end.tv_sec-start.tv_sec)*<span class="number">1000000</span> + (end.tv_usec - start.tv_usec));</span><br><span class="line">    <span class="built_in">free</span>(A);</span><br><span class="line">    <span class="built_in">free</span>(B);</span><br><span class="line">    <span class="built_in">free</span>(C);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-  </div>
+<p>** Build &amp; Install**</p>
+<pre><code class="language-bash">$mkdir build &amp;&amp; cd build
+$cmake .. --DCMAKE_INSTALL_PREFIX=/path/to/install
+$make install
+</code></pre>
+<p><strong>How to use?</strong>
+Assume Eigen3 is installed in &lt;EIGEN3_ROOT&gt;</p>
+<pre><code class="language-bash">$ gcc -I&lt;EIGEN3_ROOT&gt; ./test_eigen.cpp -o ./test_eigen.out
+</code></pre>
+<h3>Appendix</h3>
+<hr>
+<pre><code class="language-c">// test_blas.c
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;time.h&gt;
+#include &lt;sys/time.h&gt;
+
+#ifndef USING_MKL
+    #include &quot;cblas.h&quot;
+#else
+    #include &quot;mkl_cblas.h&quot;
+#endif
+
+#define MAX (int)(1e5)
+typedef double T;   //S, D, C, Z
+
+T *gen_matrix(int m,  int n, float sparsity)
+{
+    int i;
+    T *mtx = (T *)malloc(sizeof(T) * m * n);
+    for(i = 0; i &lt; m*n; i++)
+    {
+        if(rand() &lt; sparsity * RAND_MAX)
+            mtx[i] = 0;
+        else
+            mtx[i] = rand() % MAX;
+    }
+    return mtx;
+}
+
+int main()
+{
+
+    double alhpa = 2.0, beta = 2.0;
+    int m = 500, n = 500, k = 500;
+    T *A = gen_matrix(m, k, 0);
+    T *B = gen_matrix(k, n, 0);
+    T *C = gen_matrix(m, n, 0);
+    
+    print_matrix(A, m, k);
+    print_matrix(B, k, n);
+    print_matrix(C, m, n);
+    
+    struct timeval start, end;
+    gettimeofday(&amp;start, 0);
+    
+    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 
+        m, n, k, alhpa, A, k, B, n, beta, C, n);
+        
+    gettimeofday(&amp;end, 0);
+      
+    printf(
+            &quot;\nRoutine: C &lt;- alpha*op(A)op(b) + beta*C\n&quot;
+            &quot;  M = %d, K = %d, N = %d\n&quot;
+            &quot;  Wall time is %ld us\n&quot;, 
+            m, k, n, (end.tv_sec-start.tv_sec)*1000000 + (end.tv_usec - start.tv_usec));
+    free(A);
+    free(B);
+    free(C);
+    return 0;
+}
+
+</code></pre>
 
   </div>
 
-
-  <!-- Optional JavaScript -->
-  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-    crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ"
-    crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"
-    crossorigin="anonymous"></script>
+  </div>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js"></script>
+  
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
 
   <script>
+
     $(document).ready(function () {
       $("img").addClass("img-fluid");
     });
 
+    hljs.initHighlightingOnLoad();
+
   </script>
+
 </body>
 
 </html>
