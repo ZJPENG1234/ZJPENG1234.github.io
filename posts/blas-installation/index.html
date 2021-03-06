@@ -11,9 +11,9 @@
     <title>是笔记 | BLAS Installation</title>
 </head><body><nav class="navbar navbar-default my-color" style="color:white;background-color:#9f4845">
     <a class="navbar-brand navbar-title" href="/" style="color:white;">是笔记</a>
-</nav><div id="content">
-<h1>BLAS Installation</h1>
-<br><br>
+</nav><div id="content" class="container m-margin">
+<h3>BLAS Installation</h3>
+<hr>
 <p><code>BLAS</code>(Basic Linear Algebra Subprograms) has many implementations, mainly <code>ATLAS</code>, <code>GotoBLAS2</code>, <code>OpenBLAS</code>, <code>MKL</code>, <code>Eigen3</code>. This note is about how I <strong>build &amp; install &amp; link</strong> them.</p>
 <h3 id="atlas">ATLAS</h3>
 <hr>
@@ -195,5 +195,16 @@ T <span style="color:#f92672">*</span><span style="color:#a6e22e">gen_matrix</sp
 
 </code></pre></div>
 
-        </div><p class="footer text-center">Copyright (c) 2021 zhjp0</p></body>
+        <hr class="seperate-line">
+        </div><p class="footer text-center" style="font-size: small; color: darkgray;">No More</p>
+<script>
+    (function (d) {
+        var config = {
+            kitId: 'ver6mig',
+            scriptTimeout: 3000,
+            async: true
+        },
+            h = d.documentElement, t = setTimeout(function () { h.className = h.className.replace(/\bwf-loading\b/g, "") + " wf-inactive"; }, config.scriptTimeout), tk = d.createElement("script"), f = false, s = d.getElementsByTagName("script")[0], a; h.className += " wf-loading"; tk.src = 'https://use.typekit.net/' + config.kitId + '.js'; tk.async = true; tk.onload = tk.onreadystatechange = function () { a = this.readyState; if (f || a && a != "complete" && a != "loaded") return; f = true; clearTimeout(t); try { Typekit.load(config) } catch (e) { } }; s.parentNode.insertBefore(tk, s)
+    })(document);
+</script></body>
 </html>
