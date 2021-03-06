@@ -1,0 +1,30 @@
+
+.navbar-title {
+  margin-left: 10px;
+}
+
+.m-margin {
+  margin-top: 2%;
+}
+.list-group-item {
+  font-size: 1.2em;
+}
+
+p {
+  font-size: 1.1em;
+  line-height: 1.6;
+}
+
+h2 {
+  font-size: 2em;
+}
+
+body {
+  font-family: Georgia, SimSun, "宋体", sans-serif;
+  line-break: anywhere;
+}
+
+.my-color {
+  color: white; 
+  background-color: #9f4845;
+}

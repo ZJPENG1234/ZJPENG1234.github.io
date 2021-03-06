@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+
+
+    <link rel="stylesheet" type="text/css" href="/css/style.css">
+    
+    
+    <title>是笔记 | BLAS Installation</title>
+</head><body><nav class="navbar navbar-default my-color" style="color:white;background-color:#9f4845">
+    <a class="navbar-brand navbar-title" href="/" style="color:white;">是笔记</a>
+</nav><div id="content">
+<h1>BLAS Installation</h1>
+<br><br>
+<p><code>BLAS</code>(Basic Linear Algebra Subprograms) has many implementations, mainly <code>ATLAS</code>, <code>GotoBLAS2</code>, <code>OpenBLAS</code>, <code>MKL</code>, <code>Eigen3</code>. This note is about how I <strong>build &amp; install &amp; link</strong> them.</p>
+<h3 id="atlas">ATLAS</h3>
+<hr>
+<p><strong>Info</strong></p>
+<ul>
+<li>Page: <a href="http://math-atlas.sourceforge.net/">http://math-atlas.sourceforge.net/</a></li>
+<li>Version: 3.10.3 (2016-07-28)</li>
+<li>Source Code: <a href="https://sourceforge.net/projects/math-atlas/files/">https://sourceforge.net/projects/math-atlas/files/</a></li>
+<li>Installation Doc: ./INSTALL.txt</li>
+</ul>
+<p><strong>Build Before</strong></p>
+<p>Make sure CPU THROTTLING is turned off. See INSTALL.txt</p>
+<p>The following code is how ATLAS checks whether CPU THROTTLING is turned off</p>
+<pre><code>// ./CONFIG/src/backend/archinfo_linux.c Line 530-572
+/*
+ * If cpufreq directory doesn't exist, guess no throttling.  If
+ * cpufreq exists, and cur Mhz &lt; max, throttling is enabled,
+ * throttling also enabled if governer is not &quot;performance&quot;, and min freq
+ * is less than max
+ */
+</code></pre><p>So in BIOS, I set fixed 3.2 Mhz for all CPUs.</p>
+<p><strong>Build</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mkdir my_build_dir ; cd my_build_dir
+$ /path/to/ATLAS/configure <span style="color:#f92672">[</span>flags<span style="color:#f92672">]</span>
+$ make              ! tune and compile library
+$ make check        ! perform sanity tests
+$ make ptcheck      ! checks of threaded code <span style="color:#66d9ef">for</span> multiprocessor systems
+$ make time         ! provide performance summary as % of clock rate
+</code></pre></div><p><strong>Install</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ make install --prefix<span style="color:#f92672">=</span>/path/to/install
+</code></pre></div><p>or</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ make install DESTDIR<span style="color:#f92672">=</span>/path/to/install
+</code></pre></div><p><strong>How to use?</strong></p>
+<p>Assume ATLAS is installed in &lt;ATLAS_ROOT&gt;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcc test_blas.c -I&lt;ATLAS_ROOT&gt;/include -L&lt;ATLAS_ROOT&gt;/lib -lcblas -latlas -o test_blas.out
+</code></pre></div><h3 id="gotoblas2">GotoBLAS2</h3>
+<hr>
+<p><strong>Info</strong></p>
+<ul>
+<li>Page: <a href="https://www.tacc.utexas.edu/research-development/tacc-software/gotoblas2">https://www.tacc.utexas.edu/research-development/tacc-software/gotoblas2</a></li>
+<li>Version: 1.13</li>
+<li>Source Code: <a href="https://www.tacc.utexas.edu/documents/1084364/1087496/GotoBLAS2-1.13.tar.gz">https://www.tacc.utexas.edu/documents/1084364/1087496/GotoBLAS2-1.13.tar.gz</a></li>
+<li>Installation Doc:</li>
+</ul>
+<p><strong>Bug Fix:</strong></p>
+<ol>
+<li><code>./driver/others/dynamic.c Line 183-187</code> should be the following:</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">#ifdef ARCH_X86
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> (gotoblas <span style="color:#f92672">==</span> NULL) gotoblas <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>gotoblas_KATMAI;
+<span style="color:#75715e">#else
+</span><span style="color:#75715e"></span>	<span style="color:#66d9ef">if</span> (gotoblas <span style="color:#f92672">==</span> NULL) gotoblas <span style="color:#f92672">=</span> <span style="color:#f92672">&amp;</span>gotoblas_PRESCOTT;
+<span style="color:#75715e">#endif
+</span></code></pre></div><ol start="2">
+<li><code>./f_check Line 266</code> should be the following:</li>
+</ol>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-perl" data-lang="perl">($flags <span style="color:#f92672">=~</span><span style="color:#e6db74"> /^\-l\w+/</span>) 
+</code></pre></div><p><strong>Build</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ make
+</code></pre></div><p>If <code>make</code> fails, try <code>make DYNAMIC_ARCH=1</code></p>
+<p><strong>Install</strong></p>
+<p>Just copy all files into destination path.</p>
+<p><strong>How to use?</strong></p>
+<p>Assume GotoBLAS2 is installed in &lt;GotoBLAS2_ROOT&gt;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcc ./test_blas.c -o ./test_blas.out -DEXPRECISION -m128bit-long-double -Wall -m64 -DF_INTERFACE_GFORT -fPIC  -DDYNAMIC_ARCH -DMAX_CPU_NUMBER<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>  -w  -I&lt;GotoBLAS2_ROOT&gt; -L&lt;GotoBLAS2_ROOT&gt; -lgoto2 -lm -lgfortran -lquadmath -lc
+</code></pre></div><h3 id="openblas">OpenBLAS</h3>
+<hr>
+<blockquote>
+<p>OpenBLAS is an optimized BLAS library based on GotoBLAS2 1.13 BSD version.</p>
+</blockquote>
+<p><strong>Info</strong></p>
+<ul>
+<li>Page: <a href="https://www.openblas.net/">https://www.openblas.net/</a></li>
+<li>Github: <a href="https://github.com/xianyi/OpenBLAS">https://github.com/xianyi/OpenBLAS</a></li>
+</ul>
+<p><strong>Build &amp; Install</strong></p>
+<p><a href="https://github.com/xianyi/OpenBLAS/wiki/Installation-Guide">https://github.com/xianyi/OpenBLAS/wiki/Installation-Guide</a></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ make
+$ make install --prefix<span style="color:#f92672">=</span>/path/to/install
+</code></pre></div><p><strong>How to use?</strong>
+Assume OpenBLAS is installed in &lt;OPEN_ROOT&gt;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">gcc ./test_blas.c -o ./test_blas.out -I&lt;OPEN_ROOT&gt; -L&lt;OPEN_ROOT&gt; -lopenblas
+</code></pre></div><h3 id="mkl">MKL</h3>
+<hr>
+<blockquote>
+<p>Intel® Math Kernel Library (Intel® MKL) optimizes code with minimal effort for future generations of Intel® processors. It is compatible with your choice of compilers, languages, operating systems, and linking and threading models.</p>
+</blockquote>
+<p>MKL has overall documents, so everything will be easy.</p>
+<p><strong>Info</strong></p>
+<ul>
+<li>Page: <a href="https://software.intel.com/en-us/mkl">https://software.intel.com/en-us/mkl</a></li>
+<li>Doc: <a href="https://software.intel.com/en-us/mkl/documentation">https://software.intel.com/en-us/mkl/documentation</a></li>
+</ul>
+<p><strong>Build &amp; Install</strong></p>
+<p>After download, it&rsquo;s compiled, so don&rsquo;t need build and install step.</p>
+<p><strong>How to use?</strong></p>
+<p>You can set environment variables, see <a href="https://software.intel.com/en-us/mkl-linux-developer-guide-linking-on-intel-64-architecture-systems">here</a>: <em>Getting Started</em>.</p>
+<p>Also you can link directly, like <a href="https://software.intel.com/en-us/mkl-linux-developer-guide-linking-on-intel-64-architecture-systems">this</a>: <em>Linking Your Application with the Intel® Math Kernel Library</em>.</p>
+<h3 id="eigen3">Eigen3</h3>
+<hr>
+<blockquote>
+<p>Eigen is a C++ template library for linear algebra: matrices, vectors, numerical solvers, and related algorithms.</p>
+</blockquote>
+<p><strong>Info</strong></p>
+<ul>
+<li>Page: <a href="http://eigen.tuxfamily.org">http://eigen.tuxfamily.org</a></li>
+<li>Github: <a href="https://github.com/eigenteam/eigen-git-mirror">https://github.com/eigenteam/eigen-git-mirror</a></li>
+</ul>
+<p><strong>Build &amp; Install</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ mkdir build <span style="color:#f92672">&amp;&amp;</span> cd build
+$ cmake .. --DCMAKE_INSTALL_PREFIX<span style="color:#f92672">=</span>/path/to/install
+$ make install
+</code></pre></div><p><strong>How to use?</strong>
+Assume Eigen3 is installed in &lt;EIGEN3_ROOT&gt;</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ gcc -I&lt;EIGEN3_ROOT&gt; ./test_eigen.cpp -o ./test_eigen.out
+</code></pre></div><h3 id="appendix">Appendix</h3>
+<hr>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-c" data-lang="c"><span style="color:#75715e">// test_blas.c
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdio.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;stdlib.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;time.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;sys/time.h&gt;</span><span style="color:#75715e">
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#ifndef USING_MKL
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;cblas.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#else
+</span><span style="color:#75715e"></span>    <span style="color:#75715e">#include</span> <span style="color:#75715e">&#34;mkl_cblas.h&#34;</span><span style="color:#75715e">
+</span><span style="color:#75715e">#endif
+</span><span style="color:#75715e"></span>
+<span style="color:#75715e">#define MAX (int)(1e5)
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">typedef</span> <span style="color:#66d9ef">double</span> T;   <span style="color:#75715e">//S, D, C, Z
+</span><span style="color:#75715e"></span>
+T <span style="color:#f92672">*</span><span style="color:#a6e22e">gen_matrix</span>(<span style="color:#66d9ef">int</span> m,  <span style="color:#66d9ef">int</span> n, <span style="color:#66d9ef">float</span> sparsity)
+{
+    <span style="color:#66d9ef">int</span> i;
+    T <span style="color:#f92672">*</span>mtx <span style="color:#f92672">=</span> (T <span style="color:#f92672">*</span>)malloc(<span style="color:#66d9ef">sizeof</span>(T) <span style="color:#f92672">*</span> m <span style="color:#f92672">*</span> n);
+    <span style="color:#66d9ef">for</span>(i <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; i <span style="color:#f92672">&lt;</span> m<span style="color:#f92672">*</span>n; i<span style="color:#f92672">++</span>)
+    {
+        <span style="color:#66d9ef">if</span>(rand() <span style="color:#f92672">&lt;</span> sparsity <span style="color:#f92672">*</span> RAND_MAX)
+            mtx[i] <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>;
+        <span style="color:#66d9ef">else</span>
+            mtx[i] <span style="color:#f92672">=</span> rand() <span style="color:#f92672">%</span> MAX;
+    }
+    <span style="color:#66d9ef">return</span> mtx;
+}
+
+<span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>()
+{
+
+    <span style="color:#66d9ef">double</span> alhpa <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.0</span>, beta <span style="color:#f92672">=</span> <span style="color:#ae81ff">2.0</span>;
+    <span style="color:#66d9ef">int</span> m <span style="color:#f92672">=</span> <span style="color:#ae81ff">500</span>, n <span style="color:#f92672">=</span> <span style="color:#ae81ff">500</span>, k <span style="color:#f92672">=</span> <span style="color:#ae81ff">500</span>;
+    T <span style="color:#f92672">*</span>A <span style="color:#f92672">=</span> gen_matrix(m, k, <span style="color:#ae81ff">0</span>);
+    T <span style="color:#f92672">*</span>B <span style="color:#f92672">=</span> gen_matrix(k, n, <span style="color:#ae81ff">0</span>);
+    T <span style="color:#f92672">*</span>C <span style="color:#f92672">=</span> gen_matrix(m, n, <span style="color:#ae81ff">0</span>);
+    
+    print_matrix(A, m, k);
+    print_matrix(B, k, n);
+    print_matrix(C, m, n);
+    
+    <span style="color:#66d9ef">struct</span> timeval start, end;
+    gettimeofday(<span style="color:#f92672">&amp;</span>start, <span style="color:#ae81ff">0</span>);
+    
+    cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans, 
+        m, n, k, alhpa, A, k, B, n, beta, C, n);
+        
+    gettimeofday(<span style="color:#f92672">&amp;</span>end, <span style="color:#ae81ff">0</span>);
+      
+    printf(
+            <span style="color:#e6db74">&#34;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">Routine: C &lt;- alpha*op(A)op(b) + beta*C</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+            <span style="color:#e6db74">&#34;  M = %d, K = %d, N = %d</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>
+            <span style="color:#e6db74">&#34;  Wall time is %ld us</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&#34;</span>, 
+            m, k, n, (end.tv_sec<span style="color:#f92672">-</span>start.tv_sec)<span style="color:#f92672">*</span><span style="color:#ae81ff">1000000</span> <span style="color:#f92672">+</span> (end.tv_usec <span style="color:#f92672">-</span> start.tv_usec));
+    free(A);
+    free(B);
+    free(C);
+    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+}
+
+</code></pre></div>
+
+        </div><p class="footer text-center">Copyright (c) 2021 zhjp0</p></body>
+</html>

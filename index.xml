@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>是笔记</title>
+    <link>https://zhjp0.github.io/</link>
+    <description>Recent content on 是笔记</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-cn</language>
+    <lastBuildDate>Sat, 06 Mar 2021 17:20:56 +0800</lastBuildDate><atom:link href="https://zhjp0.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>BLAS Installation</title>
+      <link>https://zhjp0.github.io/posts/blas-installation/</link>
+      <pubDate>Sat, 06 Mar 2021 17:20:56 +0800</pubDate>
+      
+      <guid>https://zhjp0.github.io/posts/blas-installation/</guid>
+      <description>BLAS(Basic Linear Algebra Subprograms) has many implementations, mainly ATLAS, GotoBLAS2, OpenBLAS, MKL, Eigen3. This note is about how I build &amp;amp; install &amp;amp; link them.
+ATLAS  Info
+ Page: http://math-atlas.sourceforge.net/ Version: 3.10.3 (2016-07-28) Source Code: https://sourceforge.net/projects/math-atlas/files/ Installation Doc: ./INSTALL.txt  Build Before
+Make sure CPU THROTTLING is turned off. See INSTALL.txt
+The following code is how ATLAS checks whether CPU THROTTLING is turned off
+// ./CONFIG/src/backend/archinfo_linux.c Line 530-572 /* * If cpufreq directory doesn&#39;t exist, guess no throttling.</description>
+    </item>
+    
+    <item>
+      <title>Report Slides Template</title>
+      <link>https://zhjp0.github.io/posts/report-slides-template/</link>
+      <pubDate>Sat, 06 Mar 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://zhjp0.github.io/posts/report-slides-template/</guid>
+      <description>仿LaTeX beamer的Metropolis主题，做了一个Powerpoint版本 文件在这里：https://gitee.com/zhan</description>
+    </item>
+    
+  </channel>
+</rss>
